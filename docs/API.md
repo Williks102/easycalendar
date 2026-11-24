@@ -5,7 +5,8 @@ Base : `/api/v1`. Réponses JSON. Authentification par jeton (Laravel Sanctum) c
 | Méthode et route | Rôle | Accès |
 | --- | --- | --- |
 | `POST /auth/otp/request` | Envoie un code OTP par SMS ou WhatsApp | Public |
-| `POST /auth/otp/verify` | Vérifie le code, renvoie le jeton | Public |
+| `POST /auth/otp/verify` | Vérifie le code, renvoie le jeton ; crée le compte au premier passage | Public |
+| `POST /auth/logout` | Révoque le jeton courant | Pro |
 | `GET /public/{slug}` | Profil du pro et services actifs | Public |
 | `GET /public/{slug}/slots?service_id=&date=` | Créneaux libres d'un jour | Public |
 | `POST /public/{slug}/bookings` | Crée un rendez-vous `pending_payment` et lance le paiement | Public |
@@ -14,8 +15,8 @@ Base : `/api/v1`. Réponses JSON. Authentification par jeton (Laravel Sanctum) c
 | `POST /public/bookings/{cancel_token}/reschedule` | Reporte sur un nouveau créneau (acompte reporté) | Public (jeton) |
 | `GET /me`, `PATCH /me` | Profil, slug, compte de paiement | Pro |
 | `GET/POST/PATCH/DELETE /services` | Gère les services | Pro |
-| `GET/PUT /availability` | Horaires hebdomadaires | Pro |
-| `POST/DELETE /availability/exceptions` | Congés et horaires spéciaux | Pro |
+| `GET/PUT /availability` | Horaires hebdomadaires (`PUT` remplace tout) ; `GET` renvoie aussi les exceptions | Pro |
+| `POST /availability/exceptions`, `DELETE /availability/exceptions/{id}` | Congés et horaires spéciaux (une exception par jour : un nouveau `POST` sur la même date remplace l'ancienne) | Pro |
 | `GET /bookings?from=&to=&status=` | Agenda et liste | Pro |
 | `PATCH /bookings/{id}` | Annule, marque `completed` ou `no_show` | Pro |
 | `POST /webhooks/payments/{provider}` | Notification de paiement (signature vérifiée) | Agrégateur |
@@ -50,6 +51,14 @@ POST /api/v1/public/salon-ama/bookings
 | `409` | Le créneau vient d'être pris |
 | `422` | Données invalides |
 | `429` | Trop de requêtes |
+
+## Authentification (lot 1)
+
+- `POST /auth/otp/request` `{ "phone": "+225..." }` → `202`. Code à 6 chiffres, valable 10 minutes, à usage unique, bloqué après 5 essais faux. Limites : 3 demandes par 10 minutes et par numéro, 10 par IP (`429`).
+- `POST /auth/otp/verify` `{ "phone", "code" }` → `200` avec `{ token, professional }` si le compte existe. Sans compte, `name` et `slug` sont obligatoires (`business_name` et `password` facultatifs) : le compte est créé et la réponse est `201`. Code faux ou expiré → `422` sur `code`.
+- Un compte `suspended` reçoit `403` partout.
+- L'envoi du code passe par l'interface `OtpSender` ; tant que le fournisseur n'est pas choisi (décision 5), le code est écrit dans les journaux.
+- `DELETE /services/{id}` renvoie `409` si le service a déjà des rendez-vous : le désactiver (`is_active`) à la place.
 
 ## Règles
 
