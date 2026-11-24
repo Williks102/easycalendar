@@ -4,14 +4,14 @@ Quatre lots, dans cet ordre. Durées estimées pour une petite équipe, à recal
 
 ## Lot 1 — Socle (≈ 2 semaines)
 
-- [ ] Initialiser le dépôt (backend Laravel, frontend Next.js, Docker, `.env.example`)
-- [ ] Migrations des 8 tables (voir `docs/DATABASE.md`)
-- [ ] Inscription professionnelle : téléphone, OTP, mot de passe, `slug` unique
-- [ ] Authentification Sanctum
-- [ ] CRUD des services (durée, prix, acompte, tampon)
-- [ ] Horaires hebdomadaires et exceptions (congés)
-- [ ] Profil du professionnel et compte de paiement
-- [ ] CI : tests et lint à chaque commit
+- [ ] Initialiser le dépôt (backend Laravel, Docker, `.env.example` : fait ; frontend Next.js : à faire)
+- [x] Migrations des 8 tables (voir `docs/DATABASE.md`)
+- [x] Inscription professionnelle : téléphone, OTP, mot de passe, `slug` unique
+- [x] Authentification Sanctum
+- [x] CRUD des services (durée, prix, acompte, tampon)
+- [x] Horaires hebdomadaires et exceptions (congés)
+- [x] Profil du professionnel et compte de paiement
+- [x] CI : tests et lint à chaque commit
 
 ## Lot 2 — Réservation (≈ 3 semaines)
 

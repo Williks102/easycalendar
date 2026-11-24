@@ -17,6 +17,12 @@ class Professional extends Authenticatable
         'whatsapp_number', 'payout_operator', 'payout_phone', 'status',
     ];
 
+    /** Mêmes valeurs par défaut qu'en base, pour un modèle qui vient d'être créé. */
+    protected $attributes = [
+        'status' => 'active',
+        'timezone' => 'Africa/Abidjan',
+    ];
+
     protected $hidden = ['password_hash'];
 
     protected function casts(): array
