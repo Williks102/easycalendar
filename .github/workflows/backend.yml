@@ -1,0 +1,51 @@
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', 'database/**', '.github/workflows/backend.yml']
+  pull_request:
+    paths: ['backend/**', 'database/**', '.github/workflows/backend.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: easycalendar
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: easycalendar_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U easycalendar"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_pgsql, redis
+          coverage: none
+
+      - run: composer install --prefer-dist --no-interaction --no-progress
+
+      - run: cp .env.example .env && php artisan key:generate
+
+      - name: Lint (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Tests
+        run: php artisan test

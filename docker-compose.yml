@@ -1,0 +1,47 @@
+# Environnement de développement : API, worker de files, scheduler, PostgreSQL, Redis.
+# Usage : cp backend/.env.example backend/.env && docker compose up --build
+x-backend: &backend
+  build: ./backend
+  env_file: ./backend/.env
+  environment:
+    DB_HOST: postgres
+    REDIS_HOST: redis
+  volumes:
+    - ./backend:/var/www/html
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  api:
+    <<: *backend
+    ports: ['8000:8000']
+
+  queue:
+    <<: *backend
+    command: php artisan queue:work --tries=3
+
+  scheduler:
+    <<: *backend
+    command: php artisan schedule:work
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: easycalendar
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: easycalendar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U easycalendar']
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+
+volumes:
+  pgdata:
