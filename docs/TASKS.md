@@ -4,7 +4,7 @@ Quatre lots, dans cet ordre. Durées estimées pour une petite équipe, à recal
 
 ## Lot 1 — Socle (≈ 2 semaines)
 
-- [ ] Initialiser le dépôt (backend Laravel, Docker, `.env.example` : fait ; frontend Next.js : à faire)
+- [x] Initialiser le dépôt (backend Laravel, frontend Next.js, Docker, `.env.example`)
 - [x] Migrations des 8 tables (voir `docs/DATABASE.md`)
 - [x] Inscription professionnelle : téléphone, OTP, mot de passe, `slug` unique
 - [x] Authentification Sanctum
